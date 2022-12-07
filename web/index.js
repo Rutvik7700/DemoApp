@@ -18,7 +18,8 @@ import { getStudunt } from "./mongoDB/controllers/studentController.js";
 const USE_ONLINE_TOKENS = false;
 
 const PORT = parseInt(process.env.BACKEND_PORT || process.env.PORT, 10);
-const DATABASE_URL = process.env.DATABASE_URL || "mongodb://0.0.0.0:27017"
+const DATABASE_URL = "mongodb://0.0.0.0:27017"
+// const DATABASE_URL = "mongodb+srv://widgit:widgit@cluster0.zae5eby.mongodb.net/rutvik?retryWrites=true&w=majority"
 // TODO: There should be provided by env vars
 const DEV_INDEX_PATH = `${process.cwd()}/frontend/`;
 const PROD_INDEX_PATH = `${process.cwd()}/frontend/dist/`;
@@ -35,7 +36,7 @@ Shopify.Context.initialize({
   IS_EMBEDDED_APP: true,
   // This should be replaced with your preferred storage strategy
   // See note below regarding using CustomSessionStorage with this template.
-  // SESSION_STORAGE: new Shopify.Session.SQLiteSessionStorage(DB_PATH),
+  SESSION_STORAGE: new Shopify.Session.MongoDBSessionStorage(DATABASE_URL),
   ...(process.env.SHOP_CUSTOM_DOMAIN && { CUSTOM_SHOP_DOMAINS: [process.env.SHOP_CUSTOM_DOMAIN] }),
 });
 // console.log("scope",process.env.SCOPES)
@@ -257,10 +258,10 @@ export async function createServer(
       // console.log("object")
 
       const client = new Shopify.Clients.Graphql(session?.shop, session?.accessToken);
-      
+
       const { key } = req.body
       console.log("QTY=====", key)
-let arr_val_col = []
+      let arr_val_col = []
       for (let i = 0; i < key; i++) {
         var x = Math.floor((Math.random() * 20) + 1);
         console.log("x=====", x)
@@ -307,12 +308,12 @@ let arr_val_col = []
           },
         });
 
-console.log("REsponse data", hero2.body.data.collectionCreate.collection.id);
-arr_val_col.push(hero2.body.data.collectionCreate.collection.id)
-}
-getStudunt(req,res, arr_val_col)
-      res.status(200).json( {success:true, arr_val_col} );
-      console.log("object",arr_val_col)
+        console.log("REsponse data", hero2.body.data.collectionCreate.collection.id);
+        arr_val_col.push(hero2.body.data.collectionCreate.collection.id)
+      }
+      getStudunt(req, res, arr_val_col)
+      res.status(200).json({ success: true, arr_val_col });
+      console.log("object", arr_val_col)
 
     } catch (error) {
       console.log(error)
@@ -323,7 +324,7 @@ getStudunt(req,res, arr_val_col)
 
   app.post("/api/customer-create", async (req, res) => {
     try {
-    
+
       const session = await Shopify.Utils.loadCurrentSession(
         req,
         res,
@@ -333,7 +334,7 @@ getStudunt(req,res, arr_val_col)
       const client = new Shopify.Clients.Graphql(session?.shop, session?.accessToken)
       const { key } = req.body
       console.log("QTY=====", key)
-// let arr_val_col = []
+      // let arr_val_col = []
       for (let i = 0; i < key; i++) {
         var x = Math.floor((Math.random() * 10) + 1);
         var x1 = Math.floor((Math.random() * 5) + 1);
@@ -377,151 +378,281 @@ getStudunt(req,res, arr_val_col)
           },
         });
 
-        console.log("object===",hero2.body.data.customerCreate.customer)
+        console.log("object===", hero2.body.data.customerCreate.customer)
       }
-      res.status(200).json({success:true});
-// getStudunt(req,res, arr_val_col)
+      res.status(200).json({ success: true });
+      // getStudunt(req,res, arr_val_col)
     } catch (error) {
-      console.log("error==",error)
+      console.log("error==", error)
       // res.status(200).json( {success:false,error} );
     }
-});
+  });
 
 
 
 
-app.post("/api/order-create", async (req, res) => {
-  try {
-  
-    const session = await Shopify.Utils.loadCurrentSession(
-      req,
-      res,
-      app.get("use-online-tokens")
-    );
-    console.log("Second Log")
-    const client = new Shopify.Clients.Graphql(session?.shop, session?.accessToken)
-    const { key } = req.body
-    console.log("QTY=====", key)
-// let arr_val_col = []
-    for (let i = 0; i < key; i++) {
-      var x = Math.floor((Math.random() * 10) + 1);
-      var x1 = Math.floor((Math.random() * 5) + 1);
-      var digits = Math.floor(Math.random() * 90000000) + 10000000;
-      // console.log("x=====", digits)
-      let result2 = '';
-      let result1 = '';
-      const characters = 'qwertyuioplkjhgfdsazxcvbnm';
-      const characterssLength = characters.length;
-      for (let j = 0; j < x; j++) {
-        result2 += characters.charAt(Math.floor(Math.random() * characterssLength));
-      }
-      const num = '1234567890';
-      const numLength = num.length;
-      for (let j = 0; j < x; j++) {
-        result1 += num.charAt(Math.floor(Math.random() * numLength));
-      }
-      // console.log("title : ", result2)
-      // console.log("title2 : ", result1)
-      const hero2 = await client.query({
-        data: {
-          query: `mutation draftOrderCreate($input: DraftOrderInput!) {
-            draftOrderCreate(input: $input) {
-              draftOrder {
-                id
+  // app.post("/api/order-create", async (req, res) => {
+  //   try {
+  //     console.log("-=============");
+  //     const session = await Shopify.Utils.loadCurrentSession(
+  //       req,
+  //       res,
+  //       app.get("use-online-tokens")
+  //     );
+  //     console.log("Second Log")
+  //     const client = new Shopify.Clients.Graphql(session?.shop, session?.accessToken)
+  //     const { key } = req.body
+  //     console.log("QTY=====", key)
+  //     // let arr_val_col = []
+  //     for (let i = 0; i < 1; i++) {
+  //       // var x = Math.floor((Math.random() * 10) + 1);
+  //       // var x1 = Math.floor((Math.random() * 5) + 1);
+  //       // var digits = Math.floor(Math.random() * 90000000) + 10000000;
+  //       // // console.log("x=====", digits)
+  //       // let result2 = '';
+  //       // let result1 = '';
+  //       // const characters = 'qwertyuioplkjhgfdsazxcvbnm';
+  //       // const characterssLength = characters.length;
+  //       // for (let j = 0; j < x; j++) {
+  //       //   result2 += characters.charAt(Math.floor(Math.random() * characterssLength));
+  //       // }
+  //       // const num = '1234567890';
+  //       // const numLength = num.length;
+  //       // for (let j = 0; j < x; j++) {
+  //       //   result1 += num.charAt(Math.floor(Math.random() * numLength));
+  //       // }
+       
+  //       const hero2 = await client.query({
+  //         data: {
+  //           query: `mutation draftOrderCreate($input: DraftOrderInput!) {
+  //             draftOrderCreate(input: $input) {
+  //               draftOrder {
+  //                 id
+  //               }
+  //             }
+  //           }`,
+  //           variables: {
+  //             "input": {
+  //               "note": "Test draft order",
+  //               "email": "mailto:test.user@shopify.com",
+  //               "taxExempt": true,
+  //               "tags": [
+  //                 "foo",
+  //                 "bar"
+  //               ],
+  //               "shippingLine": {
+  //                 "title": "Custom Shipping",
+  //                 "price": 4.55
+  //               },
+  //               "shippingAddress": {
+  //                 "address1": "123 Main St",
+  //                 "city": "Waterloo",
+  //                 "province": "Ontario",
+  //                 "country": "Canada",
+  //                 "zip": "A1A 1A1"
+  //               },
+  //               "billingAddress": {
+  //                 "address1": "456 Main St",
+  //                 "city": "Toronto",
+  //                 "province": "Ontario",
+  //                 "country": "Canada",
+  //                 "zip": "Z9Z 9Z9"
+  //               },
+  //               "appliedDiscount": {
+  //                 "description": "damaged",
+  //                 "value": 5,
+  //                 "amount": 5,
+  //                 "valueType": "FIXED_AMOUNT",
+  //                 "title": "Custom"
+  //               },
+  //               "lineItems": [
+  //                 {
+  //                   "title": "Custom product",
+  //                   "originalUnitPrice": 14.99,
+  //                   "quantity": 5,
+  //                   "appliedDiscount": {
+  //                     "description": "wholesale",
+  //                     "value": 5,
+  //                     "amount": 3.74,
+  //                     "valueType": "PERCENTAGE",
+  //                     "title": "Fancy"
+  //                   },
+  //                   "weight": {
+  //                     "value": 1,
+  //                     "unit": "KILOGRAMS"
+  //                   },
+  //                   "customAttributes": [
+  //                     {
+  //                       "key": "color",
+  //                       "value": "Gold"
+  //                     },
+  //                     {
+  //                       "key": "material",
+  //                       "value": "Plastic"
+  //                     }
+  //                   ]
+  //                 },
+  //                 {
+  //                   "variantId": "gid://shopify/ProductVariant/42358174843051",
+  //                   "quantity": 2
+  //                 }
+  //               ],
+  //               "customAttributes": [
+  //                 {
+  //                   "key": "name",
+  //                   "value": "Achilles"
+  //                 },
+  //                 {
+  //                   "key": "city",
+  //                   "value": "Troy"
+  //                 }
+  //               ]
+  //             }
+  //           },
+  //         },
+  //       });
+
+  //       // console.log("object===",hero2.body.data)
+  //     }
+  //     res.status(200).json({ success: true });
+  //     // getStudunt(req,res, arr_val_col)
+  //   } catch (error) {
+  //     console.log("error==", error)
+  //     // res.status(200).json( {success:false,error} );
+  //   }
+  // });
+
+
+
+  app.post("/api/Orders-create", async (req, res) => {
+    try {
+      const session = await Shopify.Utils.loadCurrentSession(
+        req,
+        res,
+        app.get("use-online-tokens")
+      );
+
+      const { key } = req.body;
+      let order_id_array = [];
+      const client = new Shopify.Clients.Graphql(
+        session?.shop,
+        session?.accessToken
+      );
+
+      for (let index = 0; index < key; index++) {
+        let x1 = Math.floor(Math.random() * 10 + 1);
+        let x2 = Math.floor(Math.random() * 10 + 1);
+        var digits = Math.floor(Math.random() * 9000000) + 1000000;
+        let x;
+        let comp;
+        if (x1 > x2) {
+          comp = x2 + 10;
+          // console.log("if x1 ==", x1, "x2 ==", x2 + 10);
+        } else {
+          comp = x2 + 3;
+          // console.log("else x1==", x1, "x2", x2 + 5);
+        }
+        if (x1 > 4) {
+          x = x1;
+          // console.log("if ===",x1)
+        } else {
+          x = x1 + 3;
+          // console.log("else ==",(x1 + 3))
+        }
+        // function generateString(length) {
+        const characters =
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        let result = " ";
+        const charactersLength = characters.length;
+        var imag_count = [];
+
+        
+        const prodData5 = await client.query({
+          data: {
+            query: `mutation draftOrderCreate($input: DraftOrderInput!) {
+              draftOrderCreate(input: $input) {
+                draftOrder {
+                  id
+                }
               }
-            }
-          }`,
-          variables: {
-            "input": {
-              "note": "Test draft order",
-              "email": "test.user@shopify.com",
-              "taxExempt": true,
-              "tags": [
-                "foo",
-                "bar"
-              ],
-              "shippingLine": {
-                "title": "Custom Shipping",
-                "price": 4.55
-              },
-              "shippingAddress": {
-                "address1": "123 Main St",
-                "city": "Waterloo",
-                "province": "Ontario",
-                "country": "Canada",
-                "zip": "A1A 1A1"
-              },
-              "billingAddress": {
-                "address1": "456 Main St",
-                "city": "Toronto",
-                "province": "Ontario",
-                "country": "Canada",
-                "zip": "Z9Z 9Z9"
-              },
-              "appliedDiscount": {
-                "description": "damaged",
-                "value": 5,
-                "amount": 5,
-                "valueType": "FIXED_AMOUNT",
-                "title": "Custom"
-              },
-              "lineItems": [
-                {
-                  "title": "Custom product",
-                  "originalUnitPrice": 14.99,
-                  "quantity": 5,
-                  "appliedDiscount": {
-                    "description": "wholesale",
-                    "value": 5,
-                    "amount": 3.74,
-                    "valueType": "PERCENTAGE",
-                    "title": "Fancy"
-                  },
-                  "weight": {
-                    "value": 1,
-                    "unit": "KILOGRAMS"
-                  },
-                  "customAttributes": [
-                    {
-                      "key": "color",
-                      "value": "Gold"
+            }`,
+            variables: {
+              "input": {
+                "note": "Test draft order",
+                "email": "test.user@shopify.com",
+                "taxExempt": true,
+                "tags": [
+                  "foo",
+                  "bar"
+                ],
+                "appliedDiscount": {
+                  "description": "damaged",
+                  "value": 5,
+                  "amount": 5,
+                  "valueType": "FIXED_AMOUNT",
+                  "title": "Custom"
+                },
+                "lineItems": [
+                  {
+                    "title": "Custom product",
+                    "originalUnitPrice": 14.99,
+                    "quantity": 5,
+                    "appliedDiscount": {
+                      "description": "wholesale",
+                      "value": 5,
+                      "amount": 3.74,
+                      "valueType": "PERCENTAGE",
+                      "title": "Fancy"
                     },
-                    {
-                      "key": "material",
-                      "value": "Plastic"
-                    }
-                  ]
-                },
-                {
-                  "variantId": "gid://shopify/ProductVariant/42358174843051",
-                  "quantity": 2
-                }
-              ],
-              "customAttributes": [
-                {
-                  "key": "name",
-                  "value": "Achilles"
-                },
-                {
-                  "key": "city",
-                  "value": "Troy"
-                }
-              ]
-            }
+                    "weight": {
+                      "value": 1,
+                      "unit": "KILOGRAMS"
+                    },
+                    "customAttributes": [
+                      {
+                        "key": "color",
+                        "value": "Gold"
+                      },
+                      {
+                        "key": "material",
+                        "value": "Plastic"
+                      }
+                    ]
+                  },
+                  {
+                    "variantId": "gid://shopify/ProductVariant/44125802791230",
+                    "quantity": 2
+                  }
+                ],
+                "customAttributes": [
+                  {
+                    "key": "name",
+                    "value": "Achilles"
+                  },
+                  {
+                    "key": "city",
+                    "value": "Troy"
+                  }
+                ]
+              }
+            },
           },
-        },
-      });
+        });
+        console.log("OrderData :== ", prodData5.body.data);
+        // order_id_array.push(prodData5.body.data.draftOrderCreate.draftOrder.id);
+        // console.log("mob++",digits);
+        // res.status(200).json({prodData5});
+      }
+      return res.status(200).json({ success: true});
+      // console.log("customerData qty : ", order_id_array);
+      // getorderid(req, res, order_id_array);
+      // createDoc_order(req, res);
 
-      // console.log("object===",hero2.body.data)
+    } catch (error) {
+      console.log("Error" + error);
+      res.status(500).json({ error });
     }
-    res.status(200).json({success:true});
-// getStudunt(req,res, arr_val_col)
-  } catch (error) {
-    console.log("error==",error)
-    // res.status(200).json( {success:false,error} );
-  }
-});
-
+  });
 
 
   // All endpoints after this point will have access to a request.body

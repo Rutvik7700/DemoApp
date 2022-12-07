@@ -2,11 +2,15 @@ import mongoose from 'mongoose'
 
 const connectDB = async (DATABASE_URL) => {
     try{
-        const DB_OPTIONS = {
-            dbName: 'shopify_id2',
-        }
-        await mongoose.connect(DATABASE_URL, DB_OPTIONS);
-        console.log('Connected successfully..');
+
+        // await mongoose.connect(DATABASE_URL, DB_OPTIONS);
+        // console.log('Connected successfully..');
+
+        //const connectDatabase = () => {
+            new mongoose.connect(DATABASE_URL, {useUnifiedTopology: true,   useNewUrlParser: true}).then((data) => {
+                console.log("Database connected to: ", data.connection.host)
+            }).catch((error) => console.log(error))
+        //}
     }
     catch(err){
         console.log(err);

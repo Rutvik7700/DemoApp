@@ -30,21 +30,21 @@ export default function order() {
       
       try {
         const Token = await getSessionToken(app);
-        console.log("qty==>")
-        const res = await axios.post("/api/order-create",collval, {
+        console.log("qty==>",collval)
+        const res = await axios.post("/api/Orders-create",collval, {
           headers: {
             Authorization: "Bearer " + Token,
           },
           body: JSON.stringify(collval)
         });
-        console.log("Garlic",res)
+        console.log("lsa",res)
       } catch (error) {
         console.log(error)
       }
     }
 
-    const newfunction = () => {
-      clicktocollection(collval)
+    const newfunction = async() => {
+      await clicktocollection(collval)
       console.log("Selected Option:", selected)
     }
 
